@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn Python — Step by Step</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --accent: #f0e040;
+    --accent2: #40e0f0;
+    --accent3: #f040a0;
+    --text: #e8e8e8;
+    --muted: #666;
+    --done: #2ecc71;
+    --border: #2a2a2a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(240,224,64,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(240,224,64,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    margin-bottom: 48px;
+    animation: slideDown 0.6s ease;
+  }
+
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+
+  h1 span {
+    color: var(--accent);
+    position: relative;
+  }
+
+  .subtitle {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 400;
+  }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    background: var(--surface2);
+    border-radius: 999px;
+    height: 8px;
+    margin: 32px 0 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 999px;
+    transition: width 0.5s ease;
+  }
+
+  .progress-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .progress-label span {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* Stage */
+  .stage {
+    margin-bottom: 40px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .stage:nth-child(1) { animation-delay: 0.1s; }
+  .stage:nth-child(2) { animation-delay: 0.2s; }
+  .stage:nth-child(3) { animation-delay: 0.3s; }
+  .stage:nth-child(4) { animation-delay: 0.4s; }
+  .stage:nth-child(5) { animation-delay: 0.5s; }
+
+  .stage-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .stage-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+  }
+
+  .stage-title {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    flex: 1;
+  }
+
+  .stage-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+  }
+
+  .badge-beginner { background: rgba(240,224,64,0.12); color: var(--accent); }
+  .badge-intermediate { background: rgba(64,224,240,0.12); color: var(--accent2); }
+  .badge-advanced { background: rgba(240,64,160,0.12); color: var(--accent3); }
+
+  .stage-toggle {
+    font-size: 18px;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+
+  .stage.open .stage-toggle { transform: rotate(180deg); }
+
+  /* Topics grid */
+  .topics {
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 10px;
+    padding-left: 0;
+  }
+
+  .stage.open .topics { display: grid; }
+
+  .topic {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .topic:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .topic.done {
+    border-color: var(--done);
+    background: rgba(46,204,113,0.06);
+  }
+
+  .topic.done .topic-title { text-decoration: line-through; color: var(--muted); }
+
+  .topic-check {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 11px;
+  }
+
+  .topic.done .topic-check {
+    background: var(--done);
+    border-color: var(--done);
+    color: #000;
+  }
+
+  .topic-body { flex: 1; }
+
+  .topic-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 3px;
+    transition: color 0.2s;
+  }
+
+  .topic-desc {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  .topic-code {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    margin-top: 6px;
+    background: rgba(64,224,240,0.06);
+    padding: 3px 6px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  /* Current lesson panel */
+  .current-lesson {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .current-lesson::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+  }
+
+  .current-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .current-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+
+  .current-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .current-example {
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.7;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .py-keyword { color: #f0a040; }
+  .py-string  { color: #40e090; }
+  .py-comment { color: #555; font-style: italic; }
+  .py-func    { color: var(--accent2); }
+  .py-num     { color: var(--accent3); }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 700;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+  .btn-primary:hover { background: #ffe800; transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* Animations */
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .confetti {
+    position: fixed;
+    pointer-events: none;
+    font-size: 24px;
+    z-index: 999;
+    animation: confettiFall 1.2s ease forwards;
+  }
+
+  @keyframes confettiFall {
+    0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(200px) rotate(720deg); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">// Python Learning Path</div>
+    <h1>Learn <span>Python</span><br>Step by Step</h1>
+    <p class="subtitle">Click any topic to mark it done. Track your progress as you go.</p>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-label">Progress: <span id="progressText">0 / 0</span> topics complete</div>
+  </header>
+
+  <!-- Current lesson -->
+  <div class="current-lesson" id="currentLesson">
+    <div class="current-label">▶ Start Here</div>
+    <div class="current-title">Click any topic below to begin</div>
+    <div class="current-desc">Work through each stage in order. Mark topics as done to track your progress. Each topic includes a code example to study.</div>
+    <div class="current-example"><span class="py-comment"># Welcome to Python!</span>
+<span class="py-func">print</span>(<span class="py-string">"Hello, World!"</span>)  <span class="py-comment"># Your very first Python line</span></div>
+  </div>
+
+  <div id="stages"></div>
+
+</div>
+
+<script>
+const curriculum = [
+  {
+    title: "The Absolute Basics",
+    badge: "beginner",
+    topics: [
+      {
+        title: "Installing Python",
+        desc: "Download Python 3.x from python.org and verify it works.",
+        code: `# In your terminal:\n# python --version\n# → Python 3.x.x`,
+      },
+      {
+        title: "print() & Comments",
+        desc: "Output text and leave notes in your code.",
+        code: `# This is a comment\nprint("Hello, World!")\nprint("My name is Claude")`,
+      },
+      {
+        title: "Variables & Assignment",
+        desc: "Store values in named containers.",
+        code: `name = "Alice"\nage = 25\nheight = 5.7\nprint(name, age)`,
+      },
+      {
+        title: "Data Types",
+        desc: "Strings, integers, floats, and booleans.",
+        code: `text = "hello"       # str\nnumber = 42          # int\nprice = 9.99         # float\nis_on = True         # bool\nprint(type(text))`,
+      },
+      {
+        title: "User Input",
+        desc: "Get input from the user with input().",
+        code: `name = input("What is your name? ")\nprint("Hello,", name)`,
+      },
+      {
+        title: "Basic Arithmetic",
+        desc: "Math operators: +, -, *, /, //, %, **",
+        code: `print(10 + 3)   # 13\nprint(10 / 3)   # 3.33\nprint(10 // 3)  # 3 (floor)\nprint(2 ** 8)   # 256`,
+      },
+    ]
+  },
+  {
+    title: "Control Flow",
+    badge: "beginner",
+    topics: [
+      {
+        title: "if / elif / else",
+        desc: "Make decisions in your code.",
+        code: `age = 18\nif age >= 18:\n    print("Adult")\nelif age >= 13:\n    print("Teen")\nelse:\n    print("Child")`,
+      },
+      {
+        title: "Comparison Operators",
+        desc: "==, !=, >, <, >=, <= for comparisons.",
+        code: `x = 10\nprint(x == 10)  # True\nprint(x != 5)   # True\nprint(x > 20)   # False`,
+      },
+      {
+        title: "Logical Operators",
+        desc: "Combine conditions with and, or, not.",
+        code: `age = 20\nhas_id = True\nif age >= 18 and has_id:\n    print("Allowed")`,
+      },
+      {
+        title: "for Loops",
+        desc: "Repeat code a set number of times.",
+        code: `for i in range(5):\n    print(i)       # 0 1 2 3 4\n\nfor fruit in ["apple","banana"]:\n    print(fruit)`,
+      },
+      {
+        title: "while Loops",
+        desc: "Loop while a condition is True.",
+        code: `count = 0\nwhile count < 5:\n    print(count)\n    count += 1`,
+      },
+      {
+        title: "break & continue",
+        desc: "Control loop execution flow.",
+        code: `for i in range(10):\n    if i == 3:\n        continue   # skip 3\n    if i == 7:\n        break      # stop at 7\n    print(i)`,
+      },
+    ]
+  },
+  {
+    title: "Data Structures",
+    badge: "beginner",
+    topics: [
+      {
+        title: "Lists",
+        desc: "Ordered, mutable collections of items.",
+        code: `fruits = ["apple", "banana", "cherry"]\nprint(fruits[0])        # apple\nfruits.append("mango")\nprint(len(fruits))      # 4`,
+      },
+      {
+        title: "Tuples",
+        desc: "Like lists but immutable (can't change).",
+        code: `coords = (10.5, 20.3)\nprint(coords[0])   # 10.5\n# coords[0] = 5  → Error!`,
+      },
+      {
+        title: "Dictionaries",
+        desc: "Key-value pairs, like a real dictionary.",
+        code: `person = {"name": "Alice", "age": 25}\nprint(person["name"])   # Alice\nperson["city"] = "NY"\nprint(person)`,
+      },
+      {
+        title: "Sets",
+        desc: "Unordered collections with no duplicates.",
+        code: `nums = {1, 2, 3, 2, 1}\nprint(nums)        # {1, 2, 3}\nnums.add(4)\nprint(4 in nums)   # True`,
+      },
+      {
+        title: "List Slicing",
+        desc: "Extract parts of a list or string.",
+        code: `items = [0, 1, 2, 3, 4, 5]\nprint(items[1:4])   # [1, 2, 3]\nprint(items[:3])    # [0, 1, 2]\nprint(items[-2:])   # [4, 5]`,
+      },
+      {
+        title: "List Comprehensions",
+        desc: "Create lists in one elegant line.",
+        code: `squares = [x**2 for x in range(6)]\nprint(squares)   # [0,1,4,9,16,25]\n\nevens = [x for x in range(10) if x%2==0]`,
+      },
+    ]
+  },
+  {
+    title: "Functions & Modules",
+    badge: "intermediate",
+    topics: [
+      {
+        title: "Defining Functions",
+        desc: "Reusable blocks of code with def.",
+        code: `def greet(name):\n    return "Hello, " + name\n\nresult = greet("Alice")\nprint(result)`,
+      },
+      {
+        title: "Parameters & Return",
+        desc: "Pass data in, get data out.",
+        code: `def add(a, b):\n    return a + b\n\nprint(add(3, 4))    # 7\nprint(add(10, 20))  # 30`,
+      },
+      {
+        title: "Default Arguments",
+        desc: "Give parameters default values.",
+        code: `def greet(name, greeting="Hello"):\n    return f"{greeting}, {name}!"\n\nprint(greet("Alice"))           # Hello, Alice!\nprint(greet("Bob", "Hi"))`,
+      },
+      {
+        title: "*args & **kwargs",
+        desc: "Accept any number of arguments.",
+        code: `def total(*nums):\n    return sum(nums)\n\nprint(total(1, 2, 3, 4))  # 10`,
+      },
+      {
+        title: "Importing Modules",
+        desc: "Use Python's built-in libraries.",
+        code: `import math\nprint(math.sqrt(16))   # 4.0\nprint(math.pi)         # 3.14159\n\nimport random\nprint(random.randint(1, 10))`,
+      },
+      {
+        title: "Lambda Functions",
+        desc: "Short anonymous one-line functions.",
+        code: `double = lambda x: x * 2\nprint(double(5))   # 10\n\nsquare = lambda x: x ** 2\nprint(square(4))   # 16`,
+      },
+    ]
+  },
+  {
+    title: "Object-Oriented Python",
+    badge: "intermediate",
+    topics: [
+      {
+        title: "Classes & Objects",
+        desc: "Blueprint for creating custom objects.",
+        code: `class Dog:\n    def __init__(self, name):\n        self.name = name\n\n    def bark(self):\n        return self.name + " says Woof!"\n\ndog = Dog("Rex")\nprint(dog.bark())`,
+      },
+      {
+        title: "Inheritance",
+        desc: "A class can inherit from another.",
+        code: `class Animal:\n    def speak(self):\n        return "..."\n\nclass Cat(Animal):\n    def speak(self):\n        return "Meow!"\n\nc = Cat()\nprint(c.speak())`,
+      },
+      {
+        title: "File I/O",
+        desc: "Read and write files.",
+        code: `# Write\nwith open("hello.txt", "w") as f:\n    f.write("Hello file!")\n\n# Read\nwith open("hello.txt", "r") as f:\n    print(f.read())`,
+      },
+      {
+        title: "Exception Handling",
+        desc: "Handle errors gracefully.",
+        code: `try:\n    result = 10 / 0\nexcept ZeroDivisionError:\n    print("Can't divide by zero!")\nfinally:\n    print("Done")`,
+      },
+    ]
+  },
+];
+
+// State
+let completed = JSON.parse(localStorage.getItem('pylearn') || '{}');
+let totalTopics = 0;
+
+function saveState() {
+  localStorage.setItem('pylearn', JSON.stringify(completed));
+}
+
+function updateProgress() {
+  const done = Object.values(completed).filter(Boolean).length;
+  const pct = totalTopics ? (done / totalTopics * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${done} / ${totalTopics}`;
+}
+
+function spawnConfetti(x, y) {
+  const emojis = ['🎉','⭐','✨','🐍','💛'];
+  for (let i = 0; i < 5; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.left = (x + (Math.random()-0.5)*80) + 'px';
+    el.style.top  = (y - 20) + 'px';
+    el.style.animationDelay = (i * 0.08) + 's';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1400);
+  }
+}
+
+function showLesson(topic) {
+  const panel = document.getElementById('currentLesson');
+  const badgeMap = { beginner: '#f0e040', intermediate: '#40e0f0', advanced: '#f040a0' };
+
+  // Syntax highlight
+  let code = topic.code
+    .replace(/\b(def|class|return|if|elif|else|for|while|in|and|or|not|import|from|with|as|try|except|finally|lambda|True|False|None|break|continue|pass)\b/g,
+      '<span class="py-keyword">$1</span>')
+    .replace(/(#[^\n]*)/g, '<span class="py-comment">$1</span>')
+    .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="py-string">$1</span>')
+    .replace(/\b(\d+\.?\d*)\b/g, '<span class="py-num">$1</span>')
+    .replace(/\b(print|input|range|len|sum|type|int|str|float|list|dict|set|open|append|super)\b/g,
+      '<span class="py-func">$1</span>');
+
+  panel.innerHTML = `
+    <div class="current-label">▶ Now Studying</div>
+    <div class="current-title">${topic.title}</div>
+    <div class="current-desc">${topic.desc}</div>
+    <div class="current-example">${code}</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="markDone('${topic.id}', this)">
+        ${completed[topic.id] ? '✓ Completed' : '✓ Mark as Done'}
+      </button>
+      <button class="btn btn-secondary" onclick="copyCode(\`${topic.code.replace(/`/g,'\\`')}\`)">
+        Copy Code
+      </button>
+    </div>
+  `;
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function markDone(id, btn) {
+  completed[id] = true;
+  saveState();
+  updateProgress();
+  btn.textContent = '✓ Completed';
+  btn.style.background = '#2ecc71';
+
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (el) el.classList.add('done');
+  if (el) el.querySelector('.topic-check').textContent = '✓';
+
+  const rect = btn.getBoundingClientRect();
+  spawnConfetti(rect.left + rect.width/2, rect.top);
+}
+
+function copyCode(code) {
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.btn-secondary');
+    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy Code', 1500); }
+  });
+}
+
+// Build UI
+const stagesEl = document.getElementById('stages');
+curriculum.forEach((stage, si) => {
+  totalTopics += stage.topics.length;
+  const stageEl = document.createElement('div');
+  stageEl.className = 'stage' + (si === 0 ? ' open' : '');
+
+  const topicsHTML = stage.topics.map((t, ti) => {
+    const id = `s${si}t${ti}`;
+    t.id = id;
+    const done = completed[id] ? 'done' : '';
+    const check = completed[id] ? '✓' : '';
+    return `
+      <div class="topic ${done}" data-id="${id}" onclick="showLesson(${JSON.stringify(t).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">
+        <div class="topic-check">${check}</div>
+        <div class="topic-body">
+          <div class="topic-title">${t.title}</div>
+          <div class="topic-desc">${t.desc}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  stageEl.innerHTML = `
+    <div class="stage-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="stage-number">0${si+1}</div>
+      <div class="stage-title">${stage.title}</div>
+      <div class="stage-badge badge-${stage.badge}">${stage.badge.toUpperCase()}</div>
+      <div class="stage-toggle">▾</div>
+    </div>
+    <div class="topics">${topicsHTML}</div>
+  `;
+  stagesEl.appendChild(stageEl);
+});
+
+// Fix onclick for topics (need proper JS refs)
+document.querySelectorAll('.topic').forEach((el, idx) => {
+  const si = parseInt(el.dataset.id.replace('s','').split('t')[0]);
+  const ti = parseInt(el.dataset.id.split('t')[1]);
+  el.onclick = () => showLesson({ ...curriculum[si].topics[ti], id: el.dataset.id });
+});
+
+updateProgress();
+</script>
+</body>
+</html>
